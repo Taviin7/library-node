@@ -38,6 +38,7 @@ export default function AutoresPage() {
   // Atualizar campos normais do formulário
   function atualizarForm(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
+    // Mantém os valores anteriores, atualiza o campo que mudou
   }
 
   // Alternar livro marcado/desmarcado

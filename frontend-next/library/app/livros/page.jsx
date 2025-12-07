@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 export default function LivrosPage() {
+
+  // Fazendo o gerenciamento dos dados que mudam na aplicação, como os livros e autores, usando useState
   const [livros, setLivros] = useState([]);
   const [autores, setAutores] = useState([]);
 
@@ -17,8 +19,10 @@ export default function LivrosPage() {
   const [modoEdicao, setModoEdicao] = useState(false);
 
   async function carregarLivros() {
+    // Fazendo a requisição para o backend para obter os livros
     const res = await fetch("http://localhost:4000/livro");
     setLivros(await res.json());
+    // Converte a resposta para JSON e atualiza o estado livros
   }
 
   async function carregarAutores() {
@@ -29,36 +33,37 @@ export default function LivrosPage() {
   useEffect(() => {
     carregarLivros();
     carregarAutores();
-  }, []);
+  }, []); // Executa apenas uma vez, quando o componente montar
 
   function atualizarForm(e) {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm({ ...form, [name]: value }); 
+    // Mantém todos os valores anteriores, [name]: value → atualiza apenas o campo que mudou
   }
 
   // Adicionar, atualizar e remover autores do formulário
   function adicionarAutor() {
     setForm({
       ...form,
-      autores: [...form.autores, ""]
+      autores: [...form.autores, ""] // Adiciona uma string vazia ao array
     });
   }
 
   // Atualiza o autor na posição index com o valor selecionado
   function atualizarAutor(index, valor) {
-    const copia = [...form.autores];
-    copia[index] = valor;
+    const copia = [...form.autores]; // Cria uma cópia do array
+    copia[index] = valor; // Atualiza o valor na posição index
     setForm({ ...form, autores: copia });
   }
 
   // Remove o autor na posição index
   function removerAutor(index) {
-    const copia = form.autores.filter((_, i) => i !== index);
-    setForm({ ...form, autores: copia });
+    const copia = form.autores.filter((_, i) => i !== index); // Remove o item na posição index
+    setForm({ ...form, autores: copia }); // Atualiza o formulário com o novo array
   }
 
   async function criar(e) {
-    e.preventDefault();
+    e.preventDefault(); // Evita o comportamento padrão de recarregar a página
 
     await fetch("http://localhost:4000/livro", {
       method: "POST",
@@ -67,29 +72,31 @@ export default function LivrosPage() {
         _id: form._id,
         titulo: form.titulo,
         isbn: form.isbn,
-        anoPublicacao: Number(form.anoPublicacao),
+        anoPublicacao: Number(form.anoPublicacao), // Converte para número
         autores: form.autores,
       }),
     });
 
     alert("Livro adicionado com sucesso!");
-    resetarFormulario();
-    carregarLivros();
+    resetarFormulario(); // Limpa o formulário
+    carregarLivros(); // Recarrega a lista de livros
   }
 
   function editarLivro(livro) {
-    setModoEdicao(true);
+    setModoEdicao(true); // Ativa o modo de edição
     setForm({
       ...livro,
-      autores: livro.autores || [],
+      autores: livro.autores || [], // Se não tiver autores, usa array vazio
     });
   }
 
   async function salvarEdicao(e) {
     e.preventDefault();
 
+    // Envia a requisição PUT para atualizar o livro, usando o ID do livro no endpoint
+    // Utiliza o fetch, forma assíncrona, sem recarregar a página, enviando os dados do formulário no corpo da requisição
     await fetch(`http://localhost:4000/livro/${form._id}`, {
-      method: "PUT",
+      method: "PUT", 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         titulo: form.titulo,
@@ -187,6 +194,7 @@ export default function LivrosPage() {
             </button>
           </div>
 
+          {/* O map percorre cada autor no array form.autores */}
           {form.autores.map((autorId, i) => (
             <div key={i} className="space-y-3 mb-3 p-2">
               <select
@@ -245,6 +253,7 @@ export default function LivrosPage() {
             </tr>
           </thead>
 
+          {/* Monta a tabela, percorrendo o array de livros e cria uma linha para cada livro */}
           <tbody>
             {livros.map((l) => (
               <tr
