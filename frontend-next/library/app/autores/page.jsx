@@ -77,10 +77,18 @@ export default function AutoresPage() {
   // Preencher formulário para edição
   function editarAutor(autor) {
     setModoEdicao(true);
+
+    // Extrair apenas a data (YYYY-MM-DD) se existir
+    let dataFormatada = "";
+    if (autor.dataNascimento) {
+      dataFormatada = autor.dataNascimento.split("T")[0];
+    }
+
+    // Preencher o formulário com os dados do autor
     setForm({
       ...autor,
       livros: autor.livros || [],
-      dataNascimento: autor.dataNascimento?.split("T")[0]  // Formatar data para o input sem hora
+      dataNascimento: dataFormatada
     });
   }
 
@@ -152,6 +160,7 @@ export default function AutoresPage() {
         />
 
         <input
+          type="date"
           name="dataNascimento"
           placeholder="aa/mm/dd"
           className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
@@ -226,29 +235,25 @@ export default function AutoresPage() {
                 key={a._id}
                 className="bg-white border-b border-gray-200 hover:bg-gray-100"
               >
-                <td className="border border-gray-200">{a._id}</td>
-                <td className="border border-gray-200">{a.nome}</td>
-                <td className="border border-gray-200">{a.biografia}</td>
+                <td className="border border-gray-200 p-2">{a._id}</td>
+                <td className="border border-gray-200 p-2">{a.nome}</td>
+                <td className="border border-gray-200 p-2">{a.biografia}</td>
                 {/* Formatando a data sem hora */}
-                <td className="border border-gray-200">
+                <td className="border border-gray-200 p-2">
                   {a.dataNascimento?.split("T")[0]}
                 </td>
 
-                <td className="p-2 space-x-2 text-center border border-gray-200">
-                  <button
-                    onClick={() => editarAutor(a)}
-                    className="bg-yellow-600 font-medium text-white px-2 py-1 mb-1 rounded"
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    onClick={() => deletarAutor(a._id)}
-                    className="bg-red-600 font-medium text-white px-2 py-1 rounded"
-                  >
-                    Excluir
-                  </button>
+                <td className="p-2 border border-gray-200">
+                  <div className="flex justify-center space-x-2">
+                    <button onClick={() => editarAutor(a)} className="bg-yellow-600 font-medium text-white px-2 py-1 rounded w-[60px]">
+                      Editar
+                    </button>
+                    <button onClick={() => deletarAutor(a._id)} className="bg-red-600 font-medium text-white px-2 py-1 rounded w-[60px]">
+                      Excluir
+                    </button>
+                  </div>
                 </td>
+
               </tr>
             ))}
           </tbody>

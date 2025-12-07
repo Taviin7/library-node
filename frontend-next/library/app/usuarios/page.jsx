@@ -27,16 +27,19 @@ export default function UsuariosPage() {
     setLivros(await res.json());
   }
 
+  // Carrega usuários e livros ao montar o componente
   useEffect(() => {
     carregarUsuarios();
     carregarLivros();
   }, []);
 
+  // Atualiza os campos do formulário conforme o input
   function atualizarForm(e) {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   }
 
+  // Adicionar, atualizar e remover empréstimos do formulário
   function adicionarEmprestimo() {
     setForm({
       ...form,
@@ -139,7 +142,7 @@ export default function UsuariosPage() {
     carregarUsuarios();
   }
 
-
+  // Reseta o formulário com campos vazios
   function resetarFormulario() {
     setForm({
       _id: "",
@@ -346,7 +349,7 @@ export default function UsuariosPage() {
         )}
       </form>
 
-      {/* TABELA */}
+      {/* Tabela de Exibição de Usuários no Banco */}
       <div className="relative overflow-x-auto bg-neutral-100 shadow rounded-lg border border-gray-300">
         <table className="w-full text-sm text-center text-gray-700">
           <thead className="text-sm bg-gray-200 border-b border-gray-300">
@@ -362,25 +365,27 @@ export default function UsuariosPage() {
           <tbody>
             {usuarios.map((u) => (
               <tr key={u._id} className="bg-white border-b border-gray-200 hover:bg-gray-100">
-                <td className="border border-gray-200">{u._id}</td>
-                <td className="border border-gray-200">{u.nome}</td>
-                <td className="border border-gray-200">{u.email}</td>
-                <td className="border border-gray-200">{u.telefone}</td>
+                <td className="border border-gray-200 p-2">{u._id}</td>
+                <td className="border border-gray-200 p-2">{u.nome}</td>
+                <td className="border border-gray-200 p-2">{u.email}</td>
+                <td className="border border-gray-200 p-2">{u.telefone}</td>
 
-                <td className="p-2 space-x-2 text-center border border-gray-200">
-                  <button
-                    onClick={() => editarUsuario(u)}
-                    className="bg-yellow-600 font-medium text-white px-2 py-1 mb-1 rounded"
-                  >
-                    Editar
-                  </button>
+                <td className="p-2 border border-gray-200">
+                  <div className="flex justify-center space-x-2">
+                    <button
+                      onClick={() => editarUsuario(u)}
+                      className="bg-yellow-600 font-medium text-white px-2 py-1 rounded w-[60px]"
+                    >
+                      Editar
+                    </button>
 
-                  <button
-                    onClick={() => remover(u._id)}
-                    className="bg-red-600 font-medium text-white px-2 py-1 mb-1 rounded"
-                  >
-                    Excluir
-                  </button>
+                    <button
+                      onClick={() => remover(u._id)}
+                      className="bg-red-600 font-medium text-white px-2 py-1 rounded w-[60px]"
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

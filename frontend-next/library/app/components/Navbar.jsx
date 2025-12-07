@@ -25,11 +25,10 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`px-3 py-1 rounded-md transition ${
-                active
+              className={`px-3 py-1 rounded-md transition ${active
                   ? "bg-white text-gray-900 font-semibold"
                   : "text-gray-300 hover:bg-gray-700"
-              }`}
+                }`}
             >
               {link.label}
             </Link>
