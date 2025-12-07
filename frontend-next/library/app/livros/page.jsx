@@ -4,35 +4,90 @@ import { useEffect, useState } from "react";
 
 export default function LivrosPage() {
   const [livros, setLivros] = useState([]);
+  const [autores, setAutores] = useState([]);
+  
   const [form, setForm] = useState({
     _id: "",
     titulo: "",
     isbn: "",
     anoPublicacao: "",
+    autores: [],
+    copias: [],
   });
-  const [modoEdicao, setModoEdicao] = useState(false); // true se estiver editando 
+  
+  const [modoEdicao, setModoEdicao] = useState(false);
 
   // Carregar livros
-  async function carregar() {
-    const res = await fetch("http://localhost:4000/livro"); // Rota da API de livros
-    const data = await res.json();
-    setLivros(data);
+  async function carregarLivros() {
+    const res = await fetch("http://localhost:4000/livro");
+    setLivros(await res.json());
   }
 
-  // Carregar ao montar
+  // Carregar autores
+  async function carregarAutores() {
+    const res = await fetch("http://localhost:4000/autor");
+    setAutores(await res.json());
+  }
+
   useEffect(() => {
-    carregar();
+    carregarLivros();
+    carregarAutores();
   }, []);
 
-  // Atualizar form ao digitar nos inputs
   function atualizarForm(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  }
+
+  // ========== AUTORES ==========
+  function adicionarAutor() {
+    setForm({
+      ...form,
+      autores: [...form.autores, ""]
+    });
+  }
+
+  function atualizarAutor(index, valor) {
+    const copia = [...form.autores];
+    copia[index] = valor;
+    setForm({ ...form, autores: copia });
+  }
+
+  function removerAutor(index) {
+    const copia = form.autores.filter((_, i) => i !== index);
+    setForm({ ...form, autores: copia });
+  }
+
+  // ========== CÓPIAS ==========
+  function adicionarCopia() {
+    setForm({
+      ...form,
+      copias: [
+        ...form.copias,
+        {
+          status: "disponivel",
+          emprestadoPara: null,
+          dataEmprestimo: null,
+          dataPrevistaDevolucao: null
+        }
+      ]
+    });
+  }
+
+  function atualizarCopia(index, campo, valor) {
+    const copia = [...form.copias];
+    copia[index][campo] = valor;
+    setForm({ ...form, copias: copia });
+  }
+
+  function removerCopia(index) {
+    const copia = form.copias.filter((_, i) => i !== index);
+    setForm({ ...form, copias: copia });
   }
 
   async function criar(e) {
     e.preventDefault();
 
-    // Chamar API para criar livro
     await fetch("http://localhost:4000/livro", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -41,19 +96,23 @@ export default function LivrosPage() {
         titulo: form.titulo,
         isbn: form.isbn,
         anoPublicacao: Number(form.anoPublicacao),
+        autores: form.autores,
+        copias: form.copias,
       }),
     });
 
-    alert("Livro adicionado com sucesso!"); // Feedback para o usuário
-
-    // Resetar form
-    setForm({ _id: "", titulo: "", isbn: "", anoPublicacao: "" });
-    carregar();
+    alert("Livro adicionado com sucesso!");
+    resetarFormulario();
+    carregarLivros();
   }
 
   function editarLivro(livro) {
     setModoEdicao(true);
-    setForm(livro);
+    setForm({
+      ...livro,
+      autores: livro.autores || [],
+      copias: livro.copias || [],
+    });
   }
 
   async function salvarEdicao(e) {
@@ -66,27 +125,37 @@ export default function LivrosPage() {
         titulo: form.titulo,
         isbn: form.isbn,
         anoPublicacao: Number(form.anoPublicacao),
+        autores: form.autores,
+        copias: form.copias,
       }),
     });
 
-    alert("Livro atualizado com sucesso!"); // Feedback para o usuário
-
-    // Resetar form
+    alert("Livro atualizado com sucesso!");
     setModoEdicao(false);
-    setForm({ _id: "", titulo: "", isbn: "", anoPublicacao: "" });
-    carregar();
+    resetarFormulario();
+    carregarLivros();
   }
 
   async function deletarLivro(id) {
     if (!confirm("Deseja excluir?")) return;
 
-    // Chamar API para excluir livro pelo ID
     await fetch(`http://localhost:4000/livro/${id}`, {
       method: "DELETE",
     });
 
-    alert("Livro deletado com sucesso!"); // Feedback para o usuário
-    carregar();
+    alert("Livro deletado com sucesso!");
+    carregarLivros();
+  }
+
+  function resetarFormulario() {
+    setForm({
+      _id: "",
+      titulo: "",
+      isbn: "",
+      anoPublicacao: "",
+      autores: [],
+      copias: [],
+    });
   }
 
   return (
@@ -136,8 +205,105 @@ export default function LivrosPage() {
           required
         />
 
+        {/* Seção de Autores */}
+        <div className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300">
+          <div className="flex justify-between text-center">
+            <p className="font-semibold text-gray-600">Autores</p>
+            <button
+              type="button"
+              onClick={adicionarAutor}
+              className="bg-blue-600 text-white px-2 py-1 rounded"
+            >
+              + Adicionar
+            </button>
+          </div>
+
+          {form.autores.map((autorId, i) => (
+            <div key={i} className="space-y-3 mb-3 p-2">
+              <select
+                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
+                value={autorId}
+                onChange={(e) => atualizarAutor(i, e.target.value)}
+              >
+                <option value="">Selecione um autor</option>
+                {autores.map((a) => (
+                  <option key={a._id} value={a._id}>
+                    {a.nome}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                className="bg-red-500 text-white px-2 py-1 rounded"
+                onClick={() => removerAutor(i)}
+              >
+                Remover
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Seção de Cópias */}
+        <div className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300">
+          <div className="flex justify-between text-center">
+            <p className="font-semibold text-gray-600">Cópias</p>
+            <button
+              type="button"
+              onClick={adicionarCopia}
+              className="bg-blue-600 text-white px-2 py-1 rounded"
+            >
+              + Adicionar
+            </button>
+          </div>
+
+          {form.copias.map((copia, i) => (
+            <div key={i} className="space-y-3 mb-3 p-2 border-t border-gray-300">
+              <select
+                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
+                value={copia.status}
+                onChange={(e) => atualizarCopia(i, "status", e.target.value)}
+              >
+                <option value="disponivel">Disponível</option>
+                <option value="emprestado">Emprestado</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="Emprestado para (ID do usuário)"
+                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
+                value={copia.emprestadoPara || ""}
+                onChange={(e) => atualizarCopia(i, "emprestadoPara", e.target.value)}
+              />
+
+              <input
+                type="date"
+                placeholder="Data Empréstimo"
+                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
+                value={copia.dataEmprestimo?.split("T")[0] || ""}
+                onChange={(e) => atualizarCopia(i, "dataEmprestimo", e.target.value)}
+              />
+
+              <input
+                type="date"
+                placeholder="Data Prevista Devolução"
+                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
+                value={copia.dataPrevistaDevolucao?.split("T")[0] || ""}
+                onChange={(e) => atualizarCopia(i, "dataPrevistaDevolucao", e.target.value)}
+              />
+
+              <button
+                type="button"
+                className="bg-red-500 text-white px-2 py-1 rounded"
+                onClick={() => removerCopia(i)}
+              >
+                Remover
+              </button>
+            </div>
+          ))}
+        </div>
+
         <button className="bg-blue-600 text-white px-4 py-2 rounded">
-          {/* Ternário de mudança texto do botão conforme o modo */}
           {modoEdicao ? "Salvar edição" : "Adicionar"}
         </button>
 
@@ -146,13 +312,12 @@ export default function LivrosPage() {
             type="button"
             onClick={() => {
               setModoEdicao(false);
-              setForm({ _id: "", titulo: "", isbn: "", anoPublicacao: "" });
+              resetarFormulario();
             }}
             className="ml-3 bg-gray-500 text-white px-4 py-2 rounded"
           >
             Cancelar
           </button>
-
         )}
       </form>
 

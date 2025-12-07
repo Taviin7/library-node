@@ -1,15 +1,14 @@
 import mongoose from "mongoose";
 
 const CopiaSchema = new mongoose.Schema({
-  codigo: { type: String, required: true },
   status: {
     type: String,
     enum: ["disponivel", "emprestado"],
     default: "disponivel"
   },
   emprestadoPara: { type: String, default: null },
-  dataEmprestimo: { type: Date },
-  dataPrevistaDevolucao: { type: Date }
+  dataEmprestimo: { type: String, default: null },
+  dataPrevistaDevolucao: { type: String, default: null }
 });
 
 const LivroSchema = new mongoose.Schema({
@@ -17,8 +16,8 @@ const LivroSchema = new mongoose.Schema({
   titulo: { type: String, required: true },
   isbn: { type: String, required: true },
   anoPublicacao: { type: Number, required: true },
-  autor: { type: String, ref: "Autor" },
+  autores: [{ type: String, ref: "Autor" }], // Referência ao modelo Autor
   copias: [CopiaSchema]
-});
+}, { timestamps: true });
 
 export default mongoose.model("Livro", LivroSchema, "Livros");

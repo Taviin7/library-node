@@ -44,7 +44,6 @@ export default function UsuariosPage() {
         ...form.emprestimos,
         {
           livroId: "",
-          copiaCodigo: "",
           dataEmprestimo: "",
           dataPrevistaDevolucao: "",
           dataDevolucao: "",
@@ -72,6 +71,7 @@ export default function UsuariosPage() {
         {
           livroId: "",
           dataReserva: "",
+          status: "ativa",
         },
       ],
     });
@@ -228,15 +228,6 @@ export default function UsuariosPage() {
               </select>
 
               <input
-                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
-                value={emp.copiaCodigo}
-                placeholder="Código da Cópia"
-                onChange={(e) =>
-                  atualizarEmprestimo(i, "copiaCodigo", e.target.value)
-                }
-              />
-
-              <input
                 type="date"
                 className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
                 value={emp.dataEmprestimo?.split("T")[0] || ""}
@@ -313,6 +304,18 @@ export default function UsuariosPage() {
                 }
               />
 
+              <select
+                className="p-2 w-full bg-gray-100 shadow rounded-lg border border-gray-300"
+                value={res.status || "ativa"}
+                onChange={(e) =>
+                  atualizarReserva(i, "status", e.target.value)
+                }
+              >
+                <option value="ativa">Ativa</option>
+                <option value="cancelada">Cancelada</option>
+                <option value="concluída">Concluída</option>
+              </select>
+
               <button
                 type="button"
                 className="bg-red-500 text-white px-2 py-1 rounded"
@@ -347,43 +350,43 @@ export default function UsuariosPage() {
       <div className="relative overflow-x-auto bg-neutral-100 shadow rounded-lg border border-gray-300">
         <table className="w-full text-sm text-center text-gray-700">
           <thead className="text-sm bg-gray-200 border-b border-gray-300">
-          <tr>
-            <th className="px-6 py-3 font-medium">ID</th>
-            <th className="px-6 py-3 font-medium">Nome</th>
-            <th className="px-6 py-3 font-medium">Email</th>
-            <th className="px-6 py-3 font-medium">Telefone</th>
-            <th className="px-6 py-3 font-medium">Ações</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {usuarios.map((u) => (
-            <tr key={u._id} className="bg-white border-b border-gray-200 hover:bg-gray-100">
-              <td className="border border-gray-200">{u._id}</td>
-              <td className="border border-gray-200">{u.nome}</td>
-              <td className="border border-gray-200">{u.email}</td>
-              <td className="border border-gray-200">{u.telefone}</td>
-
-              <td className="p-2 space-x-2 text-center border border-gray-200">
-                <button
-                  onClick={() => editarUsuario(u)}
-                  className="bg-yellow-600 font-medium text-white px-2 py-1 mb-1 rounded"
-                >
-                  Editar
-                </button>
-
-                <button
-                  onClick={() => remover(u._id)}
-                  className="bg-red-600 font-medium text-white px-2 py-1 mb-1 rounded"
-                >
-                  Excluir
-                </button>
-              </td>
+            <tr>
+              <th className="px-6 py-3 font-medium">ID</th>
+              <th className="px-6 py-3 font-medium">Nome</th>
+              <th className="px-6 py-3 font-medium">Email</th>
+              <th className="px-6 py-3 font-medium">Telefone</th>
+              <th className="px-6 py-3 font-medium">Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+
+          <tbody>
+            {usuarios.map((u) => (
+              <tr key={u._id} className="bg-white border-b border-gray-200 hover:bg-gray-100">
+                <td className="border border-gray-200">{u._id}</td>
+                <td className="border border-gray-200">{u.nome}</td>
+                <td className="border border-gray-200">{u.email}</td>
+                <td className="border border-gray-200">{u.telefone}</td>
+
+                <td className="p-2 space-x-2 text-center border border-gray-200">
+                  <button
+                    onClick={() => editarUsuario(u)}
+                    className="bg-yellow-600 font-medium text-white px-2 py-1 mb-1 rounded"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    onClick={() => remover(u._id)}
+                    className="bg-red-600 font-medium text-white px-2 py-1 mb-1 rounded"
+                  >
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
